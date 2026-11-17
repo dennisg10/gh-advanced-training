@@ -32,9 +32,9 @@ jobs:
         id: cache
         with:
           path: .cache/codeql-downloads
-          key: ${{ runner.os }}-${{ runner.arch }}-codeql-lab-v1-${{ hashFiles('examples/codeql-bundle.json') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-codeql-lab-dennisg10-20261117-a-${{ hashFiles('examples/codeql-bundle.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-codeql-lab-v1-
+            ${{ runner.os }}-${{ runner.arch }}-codeql-lab-dennisg10-20261117-a-
       # Keep preparation, checksum verification and extraction on every run,
       # even when the cache key matches exactly. See Lab 2 for the experiments.
       - name: Download only if absent; verify every archive before use
