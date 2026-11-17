@@ -1,4 +1,4 @@
-name: Lab 04 parallel checks - tst
+name: Lab 04 parallel checks
 on:
   workflow_dispatch:
     inputs:
@@ -45,17 +45,16 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
         working-directory: app
-      - parallel:
-        - name: Lint
-          run: npm run lint
-          working-directory: app
-        - name: Test
-          run: |
-            npm test
-            if [ "${{ inputs.fail-test }}" = "true" ]; then
-              exit 1
-            fi
-          working-directory: app
+      - name: Lint
+        run: npm run lint
+        working-directory: app
+      - name: Test
+        run: |
+          npm test
+          if [ "${{ inputs.fail-test }}" = "true" ]; then
+            exit 1
+          fi
+        working-directory: app
       - run: npm run build
         working-directory: app
   separate-runners:
