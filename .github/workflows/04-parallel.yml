@@ -59,13 +59,13 @@ jobs:
       - run: npm run build
         working-directory: app
   separate-runners:
+    strategy:
+      matrix:
+        check: [lint, test]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-    strategy:
-      matrix:
-        check: [lint, test]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
