@@ -1,0 +1,20 @@
+name: Lab 04 bounded timeout
+on:
+  workflow_dispatch:
+permissions: {}
+cache-mode: none
+jobs:
+  intentional-timeout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      intentional-timeout:
+        runs-on: ubuntu-latest
+        timeout-minutes: 3
+        steps:
+          - name: Deliberately wait too long; expect a step timeout
+            timeout-minutes: 1
+            run: |
+              echo 'TODO: Replace this placeholder with a two-minute wait and add a one-minute step limit. See the comments above.' >&2
+              sleep 120
+              exit 1
