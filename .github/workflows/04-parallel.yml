@@ -1,0 +1,103 @@
+name: Lab 04 parallel checks
+on:
+  workflow_dispatch:
+    inputs:
+      fail-test:
+        description: Fail the test branch after its tests pass (failure-propagation experiment)
+        type: boolean
+        default: false
+permissions: {}
+cache-mode: none
+jobs:
+  sequential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+        working-directory: app
+      - run: npm run lint
+        working-directory: app
+      - run: npm test
+        working-directory: app
+      - run: npm run build
+        working-directory: app
+  shared-runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+        working-directory: app
+      - parallel:
+        - name: Lint
+          run: npm run lint
+          working-directory: app
+        - name: Test
+          run: |
+            npm test
+            if [ "${{ inputs.fail-test }}" = "true" ]; then
+              exit 1
+            fi
+          working-directory: app
+      - run: npm run build
+        working-directory: app
+  separate-runners:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+        working-directory: app
+      - name: Complete isolated checks
+        strategy:
+          matrix:
+            check: [lint, test]
+        run: |
+          if [ "${{ matrix.check }}" = "lint" ]; then
+            npm run lint
+          elif [ "${{ matrix.check }}" = "test" ]; then
+            npm test
+          fi
+  separate-build:
+    needs: separate-runners
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+        working-directory: app
+      - run: npm run build
+        working-directory: app
