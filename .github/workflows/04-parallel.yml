@@ -1,4 +1,4 @@
-name: Lab 04 parallel checks
+name: Lab 04 parallel checks - tst
 on:
   workflow_dispatch:
     inputs:
