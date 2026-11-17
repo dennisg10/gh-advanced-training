@@ -63,6 +63,9 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+    strategy:
+      matrix:
+        check: [lint, test]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -73,16 +76,17 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
         working-directory: app
-      - name: Complete isolated checks
-        strategy:
-          matrix:
-            check: [lint, test]
+      - name: Run ${{ matrix.check }}
         run: |
           if [ "${{ matrix.check }}" = "lint" ]; then
             npm run lint
           elif [ "${{ matrix.check }}" = "test" ]; then
             npm test
+            if [ "${{ inputs.fail-test }}" = "true" ]; then
+              exit 1
+            fi
           fi
+        working-directory: app
   separate-build:
     needs: separate-runners
     runs-on: ubuntu-latest
